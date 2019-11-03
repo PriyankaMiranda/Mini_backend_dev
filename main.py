@@ -1,12 +1,13 @@
 import csv
 import json
 import os.path
-import utils
+import utils  
 
 def main():
-	utils.csv_to_json()
-
-	utils.load_json()
+	obj=utils.operations()
+	obj.csv_to_json()
+	obj.load_json()
+	obj.search(input())
 
 
 

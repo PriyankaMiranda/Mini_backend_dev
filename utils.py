@@ -2,14 +2,47 @@ import pandas as pd
 import constants
 import csv
 import json
+class operations:
+	def __init__(self):
+		self.json_data=None
 
-def __init__(self):
-	self.json_data=None
+	def load_json(self):
+		self.json_data = json.load(open(constants.data_loc+constants.file+'_json.json'))
 
-def load_json():
-	self.json_data = json.load(open(constants.data_loc+constants.file+'_json.json'))
+	# Converting to json
+	def csv_to_json(self):
+		df = pd.DataFrame(pd.read_csv(constants.data_loc+constants.file+".csv", sep = constants.csv_file_separator, header = 0, index_col = False))
+		df=self.remove_cols(df)
+		df.to_json(constants.data_loc+constants.file+'_json.json', orient='records')
 
-def csv_to_json():
-	df = pd.DataFrame(pd.read_csv(constants.data_loc+constants.file+".csv", sep = constants.csv_file_separator, header = 0, index_col = False))
-	df = df.iloc[1:]
-	df.to_json (constants.data_loc+constants.file+'_json.json', orient='split')
+	def remove_cols(self,df):
+		df = df.iloc[1:]# removing second column
+		df = df.iloc[:-1]# removing last column
+		df=self.remove_spaces(df)
+		df.drop(constants.remove_cols, axis=1, inplace=True)
+		return df
+
+	def remove_spaces(self,df):
+		redo_header=[x.strip(' ') for x in list(df.columns.values)]
+		df.columns = redo_header
+		return df
+
+	def search(self,text):	
+		self.load_json()
+		df = pd.DataFrame.from_dict(self.json_data, orient='columns')
+		df=self.remove_spaces(df)
+		df3 = pd.DataFrame(columns=df.columns.values)
+		for elems in constants.search_cols:
+			df2=df[(df[elems] == text)]
+			df3=pd.concat([df3,df2], axis=0)
+			# df3 = pd.merge(df3, df2, left_index=True, right_index=True, how='outer')
+
+			# try:
+			# 	# frames = [df, df3]
+			# 	# df = pd.concat(frames)
+			# 	# df2=df[str(text) in str(df[elems])]
+			# 	# df.append(df2)
+			# 	# df2.append(df[(str(df[elems]) == str(text))])
+			# except:
+			# 	continue
+		print(df3)
