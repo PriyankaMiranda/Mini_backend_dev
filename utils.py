@@ -19,17 +19,17 @@ class operations:
 		try:
 			df = pd.DataFrame.from_dict(data, orient='columns')
 			df = self.remove_spaces(df)
-			return df.columns.values
+			return {k: 0 for k in df.columns.values}
 		except:
-			return []
+			return {}
 
 	def get_options(self,choice,data):
-		try:
+		if(data and choice):
 			df = pd.DataFrame.from_dict(data, orient='columns')
 			df = self.remove_spaces(df)
-			return df[choice].unique()
-		except:
-			return []
+			return dict(enumerate(df[choice].unique()))
+		else:
+			return {0:0}
 
 	def remove_spaces(self, df):
 		redo_header=[x.strip(' ') for x in list(df.columns.values)]
@@ -44,24 +44,27 @@ class operations:
 		return df
 
 	def search(self, text, data):	
-		df = pd.DataFrame.from_dict(data, orient='columns')
-		df = self.remove_spaces(df)
-		df3 = pd.DataFrame(columns=df.columns.values)
-		for elem in constants.search_cols:
-			df2=df[(df[elem] == text)]
-			df3=pd.concat([df3,df2], axis=0)
-		return df3.to_dict('columns')
-
-	def sort(self, title, data):
-		try:
+		if(data and text):
 			df = pd.DataFrame.from_dict(data, orient='columns')
 			df = self.remove_spaces(df)
-			return df.sort_values(by=[title], ascending=True).to_dict('columns')
-		except:
-			return []
+			df3 = pd.DataFrame(columns=df.columns.values)
+			for elem in constants.search_cols:
+				df2=df[(df[elem] == text)]
+				df3=pd.concat([df3,df2], axis=0)
+			return df3.to_dict()
+		else:
+			return {0:0}
+
+	def sort(self, title, data):
+		if (title and data):
+			df = pd.DataFrame.from_dict(data, orient='columns')
+			df = self.remove_spaces(df)
+			return df.sort_values(by=[title], ascending=True).to_dict()
+		else:
+			return {0:0}
 
 	def filter(self,elem, inside_choice,data):
 		df = pd.DataFrame.from_dict(data, orient='columns')
 		df = self.remove_spaces(df)
 		df=df[(df[elem] == inside_choice)]
-		return df.to_dict('columns')
+		return df.to_dict()
